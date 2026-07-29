@@ -252,7 +252,9 @@ jupyter notebook Credit_Risk_Analysis.ipynb
 ## Tác giả
 
 **Võ Huỳnh Thủy Tiên**
+
 Sinh viên ngành Khoa học dữ liệu
+
 Định hướng: Data Analyst / Business Analyst
 
 * Email: [vohuynhthuytien1769@gmail.com](mailto:vohuynhthuytien1769@gmail.com)
