@@ -36,4 +36,5 @@ jupyter notebook Credit_Risk_Analysis.ipynb   # xem notebook đầy đủ
 ```
 
 ## Tác giả
-[Tên bạn] — Portfolio project chuẩn bị cho vị trí Data Analyst / Business Analyst ngân hàng.
+Võ Huỳnh Thủy Tiên- email: vohuynhthuytien1769@gmail.com
+Portfolio project chuẩn bị cho vị trí Data Analyst / Business Analyst ngân hàng.
