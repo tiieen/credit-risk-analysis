@@ -5,6 +5,9 @@ Du an DA: Credit Risk Analysis & Default Prediction
 import pandas as pd
 import numpy as np
 import json
+import os
+
+os.makedirs('charts', exist_ok=True)
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import LabelEncoder, StandardScaler
@@ -122,3 +125,196 @@ with open('results.json', 'w', encoding='utf-8') as f:
 print("DONE. Overall default rate:", results['overall_default_rate'], "%")
 print("Model AUC:", results['model']['auc'])
 print(json.dumps(feat_importance, ensure_ascii=False, indent=2))
+# ---------- 4. Save charts as PNG ----------
+
+# Chart 1: Default rate by checking account status
+status_chart = (
+    df.groupby('status', observed=True)['default']
+    .mean()
+    .mul(100)
+    .sort_values(ascending=False)
+)
+
+fig, ax = plt.subplots(figsize=(9, 5))
+
+sns.barplot(
+    x=status_chart.values,
+    y=status_chart.index,
+    color='#c0392b',
+    ax=ax
+)
+
+ax.set_title('Ty le vo no theo tinh trang tai khoan thanh toan')
+ax.set_xlabel('Ty le vo no (%)')
+ax.set_ylabel('Tinh trang tai khoan')
+
+plt.tight_layout()
+plt.savefig(
+    'charts/01_default_rate_by_status.png',
+    dpi=300,
+    bbox_inches='tight'
+)
+plt.close()
+
+
+# Chart 2: Default rate by age group
+age_chart = (
+    df.groupby('age_group', observed=True)['default']
+    .mean()
+    .mul(100)
+)
+
+age_order = ['18-25', '26-35', '36-45', '46-55', '56+']
+age_chart = age_chart.reindex(age_order)
+
+fig, ax = plt.subplots(figsize=(7, 5))
+
+sns.barplot(
+    x=age_chart.index,
+    y=age_chart.values,
+    color='#8e44ad',
+    ax=ax
+)
+
+ax.set_title('Ty le vo no theo nhom tuoi')
+ax.set_xlabel('Nhom tuoi')
+ax.set_ylabel('Ty le vo no (%)')
+
+plt.tight_layout()
+plt.savefig(
+    'charts/02_default_rate_by_age.png',
+    dpi=300,
+    bbox_inches='tight'
+)
+plt.close()
+
+
+# Chart 3: Default rate by loan purpose
+purpose_chart = (
+    df.groupby('purpose', observed=True)['default']
+    .mean()
+    .mul(100)
+    .sort_values(ascending=False)
+)
+
+fig, ax = plt.subplots(figsize=(10, 7))
+
+sns.barplot(
+    x=purpose_chart.values,
+    y=purpose_chart.index,
+    color='#2980b9',
+    ax=ax
+)
+
+ax.set_title('Ty le vo no theo muc dich vay')
+ax.set_xlabel('Ty le vo no (%)')
+ax.set_ylabel('Muc dich vay')
+
+plt.tight_layout()
+plt.savefig(
+    'charts/03_default_rate_by_purpose.png',
+    dpi=300,
+    bbox_inches='tight'
+)
+plt.close()
+
+
+# Chart 4: ROC Curve
+fpr, tpr, thresholds = roc_curve(y_test, y_prob)
+
+fig, ax = plt.subplots(figsize=(7, 6))
+
+ax.plot(
+    fpr,
+    tpr,
+    label=f'Logistic Regression (AUC = {auc:.3f})'
+)
+
+ax.plot(
+    [0, 1],
+    [0, 1],
+    linestyle='--',
+    color='gray',
+    label='Random classifier'
+)
+
+ax.set_title('ROC Curve - Du doan vo no')
+ax.set_xlabel('False Positive Rate')
+ax.set_ylabel('True Positive Rate')
+ax.legend(loc='lower right')
+
+plt.tight_layout()
+plt.savefig(
+    'charts/04_roc_curve.png',
+    dpi=300,
+    bbox_inches='tight'
+)
+plt.close()
+
+
+# Chart 5: Top Logistic Regression coefficients
+top10_coefs = (
+    coefs.reindex(top_features.index)
+    .sort_values()
+)
+
+bar_colors = [
+    '#c0392b' if value > 0 else '#27ae60'
+    for value in top10_coefs.values
+]
+
+fig, ax = plt.subplots(figsize=(9, 6))
+
+ax.barh(
+    top10_coefs.index,
+    top10_coefs.values,
+    color=bar_colors
+)
+
+ax.axvline(
+    0,
+    color='black',
+    linewidth=0.8
+)
+
+ax.set_title('Top 10 he so anh huong - Logistic Regression')
+ax.set_xlabel('He so mo hinh')
+ax.set_ylabel('Bien')
+
+plt.tight_layout()
+plt.savefig(
+    'charts/05_logistic_regression_coefficients.png',
+    dpi=300,
+    bbox_inches='tight'
+)
+plt.close()
+
+
+# Chart 6: Confusion Matrix
+fig, ax = plt.subplots(figsize=(6, 5))
+
+sns.heatmap(
+    cm,
+    annot=True,
+    fmt='d',
+    cmap='Blues',
+    cbar=False,
+    xticklabels=['Du doan tot', 'Du doan vo no'],
+    yticklabels=['Thuc te tot', 'Thuc te vo no'],
+    ax=ax
+)
+
+ax.set_title('Confusion Matrix')
+ax.set_xlabel('Gia tri du doan')
+ax.set_ylabel('Gia tri thuc te')
+
+plt.tight_layout()
+plt.savefig(
+    'charts/06_confusion_matrix.png',
+    dpi=300,
+    bbox_inches='tight'
+)
+plt.close()
+
+
+print("Da luu cac bieu do PNG vao thu muc charts.")
